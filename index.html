@@ -245,6 +245,16 @@
     animation: rainbowMove 1s linear infinite;
 }
 
+.cell-hover {
+    opacity: 1.0 !important; /* マウスオーバー中ははっきり */
+    z-index: 1;
+}
+
+.cell-grayouts {
+    background: #eee !important;
+    opacity: 0.7;
+}
+
 
 /* ===== 保存済み表パネル ===== */
 
@@ -1038,7 +1048,9 @@ function Load(callback)
                         ''
                     }"
                     style="${v > 20 ? `background:${Color(v)}` : ''}"
-                    onclick="EditCell(${iRow},${iCol},this)">
+                    onclick="EditCell(${iRow},${iCol},this)"
+                    onmouseover="HighlightCell(${iRow},${iCol})"
+                    onmouseout="UnhighlightCell()">
                     ${strText}
                     </td>`;
 
@@ -1078,6 +1090,37 @@ UpdateDeckSelectors();
         }
 UpdateDeckSelectors();
     }
+
+// セルをマウスオーバーしたとき、グレーアウト条件に応じてセルをグレーアウトする。
+function HighlightCell(iRow, iCol) {
+    let table = document.getElementById("table");
+    for (let r = 0; r < table.rows.length; r++) {
+        for (let c = 0; c < table.rows[r].cells.length; c++) {
+            let cell = table.rows[r].cells[c];
+            if (r === 0 || c === 0) continue;
+            // グレーアウト条件
+            if ((r !== iRow + 1 && c !== iCol + 1) || r > iRow + 1 || c > iCol + 1) {
+                cell.classList.add("cell-grayouts");
+                cell.classList.remove("cell-hover");
+            } else {
+                cell.classList.remove("cell-grayouts");
+                cell.classList.add("cell-hover");
+            }
+        }
+    }
+}
+
+// セルのマウスアウトで全てのセルのグレーアウトとホバーを解除する。
+function UnhighlightCell() {
+    let table = document.getElementById("table");
+    for (let r = 0; r < table.rows.length; r++) {
+        for (let c = 0; c < table.rows[r].cells.length; c++) {
+            let cell = table.rows[r].cells[c];
+            cell.classList.remove("cell-grayouts");
+            cell.classList.remove("cell-hover");
+        }
+    }
+}
 
 // セルをプルダウン編集モードに切り替える。
 function EditCell(iRow, iCol, objCell)
